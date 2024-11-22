@@ -1,0 +1,101 @@
+*{
+    margin: 0;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif   ;
+}
+
+
+header{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: red;
+    color: white;
+    height: 4rem;
+}
+
+.school-logo{
+    display: flex;
+    align-items: center;
+    padding: 5px;
+   
+}
+.school-logo img{
+    border-radius: 50%;
+    margin: 5px;
+    
+}
+.user{
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.user img {
+    padding: 5px;
+    border-radius: 50%;
+    
+}
+
+.container{
+    display: flex;
+    
+}
+
+aside{
+    flex: 1;
+    flex-grow: 1;
+    border: 2px solid  ;
+    display: flex;
+    flex-direction: column;
+    height: calc(100svh - 4rem);
+    background: #000;
+    overflow-y: auto;
+}
+
+aside button {
+    background: #fff;
+    
+    border-radius: 8px;
+    margin: 5px;
+
+}
+
+
+
+button:hover{
+    cursor: pointer;
+}
+
+main{
+    flex:5;
+}
+
+section{
+    display: none;
+}
+
+.visible{
+    display:block;
+}
+
+.course-form{
+    width: calc(100% - 8rem);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
+#courseTable{
+    margin-top: 2rem;
+}
+
+table {
+    margin: auto;
+    width: 75%;
+}
+
+table,th,td{
+    border: 2px solid;
+}
