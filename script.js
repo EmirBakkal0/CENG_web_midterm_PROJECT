@@ -260,6 +260,10 @@ combinedForm.addEventListener("submit", (event) =>{
 
 })
 
+function updateStudentsinCourseArray(){
+
+}
+
 function updateCombinedTable(){
     const tableBody = document.querySelector("#coursesAndStudentsTableBody")
     tableBody.innerHTML = ""
@@ -273,7 +277,7 @@ function updateCombinedTable(){
                 <td>${studentObj.studentObject.studentid}</td>
                 <td>${studentObj.midterm} </td>
                 <td>${studentObj.final} </td>
-                <td> grade</td>
+                <td> ${calcGradeLetter(studentObj.midterm,studentObj.final,course.gradeScale)}</td>
                  `
             tableBody.appendChild(row);
         })
@@ -285,6 +289,22 @@ function updateCombinedTable(){
 
     localStorage.setItem("students",JSON.stringify(students))
     localStorage.setItem("courses",JSON.stringify(courses))
+
+}
+
+function calcGradeLetter(midterm,final,gradescale){
+    const total= 0.4*midterm + 0.6*final;
+
+    if (gradescale === "10"){
+        return total >= 90 ? "A" : total >= 80 ? "B" : total >= 70 ? "C" : total >= 60 ? "D" : "F";
+
+        //return total >= 90 ? "AA" : total >= 85 ? "BA" : total>= 80 ? "BB" : total >=75 ? "CB": total >=70 ? "CC": total >=65 ? "DC": total >=60 ? "DD" : "FF"
+    }
+    else if (gradescale === "7"){
+        return  total >= 93 ? "A" : total >= 86 ? "B" : total >= 79 ? "C" : total >= 72 ? "D" : "F"
+
+    }
+
 
 }
 
