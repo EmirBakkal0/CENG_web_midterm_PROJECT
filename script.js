@@ -17,7 +17,7 @@ class Course{
     }
 
     addStudent(student,midterm,final){
-        this.students.push({"studentObject":student,"midterm":midterm,"final":final})
+        this.students.push({"studentid":student,"midterm":midterm,"final":final})
     }
 
 }
@@ -30,12 +30,11 @@ class Student{
         this.courses=courses
     }
 
-    edit(name,id){
-        this.name=name;
-        this.studentid=id;
+    editName(name){
+        this.name= name;
     }
     addCourse(course,midterm,final){
-        this.courses.push({"courseObject":course,"midterm":midterm,"final":final})
+        this.courses.push({"courseName":course.courseName,"midterm":midterm,"final":final})
     }
     
 }
@@ -65,7 +64,7 @@ courseForm.addEventListener("submit", (event) =>{
     const courseName= document.querySelector("#courseName").value
     const gradeScale= document.querySelector("#gradeScale").value
     console.log(courseName,gradeScale);
-    courses.push(new Course(courseName,gradeScale))
+    courses.push(new Course(courseName,gradeScale,[]))
     updateCourseTable()
 
     event.target.reset();
@@ -103,7 +102,7 @@ studentForm.addEventListener("submit", (event) =>{
 
     const studentName= document.querySelector("#studentName").value
     const studentid= document.querySelector("#studentid").value
-    students.push(new Student(studentName,studentid))
+    students.push(new Student(studentName,studentid,[]))
     updateStudentTable()
     event.target.reset();
 
@@ -122,7 +121,7 @@ function updateStudentTable(){
       <td>${student.studentid}</td>
             
       <td>
-          <button onclick="editStudent(${index})"> Edit Student ${index} </button>
+          <button onclick="editStudent(${index})"> Edit Student </button>
           <button onclick="delStudent(${index})" > Delete Student </button>
       </td>
       `;
@@ -150,6 +149,10 @@ function delStudent(index){
     students.splice(index, 1);
     updateStudentTable();
 
+}
+
+function findStudentById(id){
+    return students.find((student) => student.studentid===id)
 }
 
 /*function editStudent(index) {
@@ -185,9 +188,9 @@ function editStudent(index) {
 
     const formName= document.querySelector("#studentNameDialog")
     formName.value= students[index].name
-    const formId= document.querySelector("#studentidDialog")
+    //const formId= document.querySelector("#studentidDialog")
     const id= students[index].studentid
-    formId.value=id
+    // formId.value=id
 
     const formButton = document.querySelector("#studentSubmitButton")
     formButton.addEventListener("click",(event) =>{
@@ -196,7 +199,7 @@ function editStudent(index) {
         const selectedStudent=students.find((student) => student.studentid===id)
         console.log(selectedStudent)
 
-        selectedStudent.edit(formName.value,formId.value)
+        selectedStudent.editName(formName.value)
 
 
         updateStudentTable()
@@ -242,17 +245,18 @@ combinedForm.addEventListener("submit", (event) =>{
     for (let i=0; i<courses.length; i++){
         if (courses[i].courseName===course){
             chosenCourse=courses[i]
-            console.log("chosen course:"+chosenCourse)
+            console.log("chosen course:"+chosenCourse.courseName)
         }
     }
     for (let i=0; i<students.length; i++){
         if (students[i].name===student){
             chosenStudent=students[i]
-            console.log("chosen student:"+chosenStudent)
+            console.log("chosen student:"+chosenStudent.studentid)
         }
     }
 
-    chosenCourse.addStudent(chosenStudent,midterm,final)
+    chosenCourse.addStudent(chosenStudent.studentid,midterm,final)
+    console.log("nigg"+chosenStudent.studentid,midterm,final)
     //chosenStudent.addCourse(chosenCourse,midterm,final)
 
     updateCombinedTable()
@@ -270,11 +274,12 @@ function updateCombinedTable(){
 
     courses.forEach((course,index) =>{
         course.students.forEach((studentObj,stuIndex ) => {
+            console.log(studentObj)
             const row=document.createElement("tr");
             row.innerHTML=`
                 <td>${course.courseName}</td>
-                <td>${studentObj.studentObject.name}</td>
-                <td>${studentObj.studentObject.studentid}</td>
+                <td>${findStudentById(studentObj.studentid).name}</td>
+                <td>${studentObj.studentid}</td>
                 <td>${studentObj.midterm} </td>
                 <td>${studentObj.final} </td>
                 <td> ${calcGradeLetter(studentObj.midterm,studentObj.final,course.gradeScale)}</td>
