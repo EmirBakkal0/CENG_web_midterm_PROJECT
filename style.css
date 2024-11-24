@@ -99,3 +99,19 @@ table {
 table,th,td{
     border: 2px solid;
 }
+dialog {
+    /* this is to center the dialog when it opens*/
+    margin: auto;
+}
+
+::backdrop {
+    /* this is to style dialog background */
+    background-image: linear-gradient(
+            45deg,
+            magenta,
+            rebeccapurple,
+            dodgerblue,
+            green
+    );
+    opacity: 0.75;
+}

@@ -29,9 +29,9 @@
 
     <div class="container">
       <aside>
-        <button onclick="router('courses')">Courses</button>
-        <button onclick="router('students')">Students</button>
-        <button onclick="router('courses')">List</button>
+        <button onclick="router('courses')">Add Courses</button>
+        <button onclick="router('students')">Add Students</button>
+        <button onclick="router('editCourse')">Add students into courses</button>
 
         this is side nav
       </aside>
@@ -79,18 +79,93 @@
         <section id="students">
             <div class="student-form">
                 <h2>Add students</h2>
-                <form id="Form">
+                <form id="studentForm">
                     <label for="studentName">Student Name:</label>
                     <input type="text" name="studentName" id="studentName" placeholder="Arda Akça" required>
-                    <label for="gradeScale">Grade Scale:</label>
-                    <select name="gradeScale" id="gradeScale">
-                        <option value="10">10</option>
-                        <option value="7">7</option>
-                    </select>
-                    <button type="submit" onclick="() => handleCourseAddition()">Add Course</button>
+                    <label for="studentid">Student ID: </label>
+                    <input type="number"  name="studentid" id="studentid" placeholder="2207090xx"  required>
+                    <button type="submit">Add Student</button>
                 </form>
 
             </div>
+
+            <table id="studentTable">
+                <caption >
+                    All Students
+                  </caption>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Student ID </th>
+                        <th>Settings</th>
+
+
+                    </tr>
+                </thead>
+
+                <tbody id="studentTableBody">
+                    <!-- js inserts stuff here -->
+                </tbody>
+            </table>
+
+            <dialog id="studentEditDialog">
+
+                <h2>Edit student</h2>
+                <form id="studentDialogForm" >
+                    <label for="studentNameDialog">Student Name:</label>
+                    <input type="text" name="studentNameDialog" id="studentNameDialog" placeholder="Arda Akça" required>
+                    <label for="studentidDialog">Student ID: </label>
+                    <input type="number"  name="studentidDialog" id="studentidDialog" placeholder="2207090xx"  required>
+
+                    <button id="studentSubmitButton">Edit Student</button>
+                </form>
+                <button id="closeStudentDialog" autofocus>Close without saving</button>
+            </dialog>
+
+        </section>
+
+
+        <section id="editCourse">
+            <div class="">
+                <h2>Add students into courses</h2>
+                <form id="editCourseForm">
+                    <label for="courseSelect">Select Course</label>
+                    <select name="courseSelect" id="courseSelect" required></select>
+                    <label for="studentSelect">Select Student</label>
+                    <select name="studentSelect" id="studentSelect" required></select>
+                    <label for="midterm" >Midterm</label>
+                    <input type="number"  min="0" max="100" name="midterm" placeholder="Grade" required id="midterm">
+                    <label for="final">Final</label>
+                    <input type="number" min="0" max="100" name="final" placeholder="Grade" required id="final">
+
+                    <button type="submit">Enter</button>
+                </form>
+
+                <table id="coursesAndStudentsTable">
+                    <caption >
+                        Courses and Students
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Student Name</th>
+                        <th>Student ID </th>
+                        <th>Midterm Score</th>
+                        <th>Final Score</th>
+                        <th>Grade</th>
+
+
+                    </tr>
+                    </thead>
+
+                    <tbody id="coursesAndStudentsTableBody">
+                    <!-- js inserts stuff here -->
+                    </tbody>
+                </table>
+
+            </div>
+
+
 
         </section>
 
