@@ -9,6 +9,9 @@ function router(divID){
         updateStudentTable()
 
     }
+    else if(divID==="searchCourse"){
+        populateCourseSelection()
+    }
 
 
     const sections=document.querySelectorAll("section")
@@ -95,8 +98,10 @@ courseForm.addEventListener("submit", (event) =>{
 })
 
 
+
 function updateCourseTable(){
     const tableBody=document.querySelector("#courseTableBody")
+
     tableBody.innerHTML = ""
     for (let i=0; i< courses.length; i++)  {
         tableBody.innerHTML+=
@@ -104,16 +109,22 @@ function updateCourseTable(){
             <td>${courses[i].courseName}</td>
             <td>${courses[i].gradeScale}</td>
             <td>
-                <button onclick="router('searchCourse')" >View Details</button>
+                <button onclick="viewDetailsInCourse('${courses[i].courseName}')" >View Details</button>
                 <button onclick="delCourse(${i})" > Delete Course </button>
             </td>
-         </tr>`
+         </tr> `
     }
     const courseJSON=JSON.stringify(courses)
     localStorage.setItem("courses",courseJSON)
 
 }
+function viewDetailsInCourse (crsName) {
+    router('searchCourse')
 
+    document.querySelector('#courseSearchSelection').value=crsName
+
+
+}
 function delCourse(index){
     courses.splice(index, 1);
     updateCourseTable();
@@ -147,6 +158,7 @@ function updateStudentTable(){
       <td>
           <button onclick="editStudent(${index})"> Edit Student </button>
           <button onclick="delStudent(${index})" > Delete Student </button>
+          <span>GPA:${+student.calcGPA().toPrecision(2)}</span>
       </td>
       `;
         tableBody.appendChild(row);
@@ -155,18 +167,6 @@ function updateStudentTable(){
 
     localStorage.setItem("students",JSON.stringify(students))
 
-    /*for (let i=0; i< students.length; i++)  {
-        tableBody.innerHTML+=
-        `<tr>
-            <td>${students[i].name}</td>
-            <td>${students[i].studentid}</td>
-            
-            <td>
-                <button onclick="editStudent(${i})" > Edit Student ${i} </button>
-                <button onclick="delStudent(${i})" > Delete Student </button>
-            </td>
-         </tr>`
-    }*/
 
 }
 function delStudent(index){
@@ -180,32 +180,6 @@ function findStudentById(id){
     return students.find((student) => student.studentid===id)
 }
 
-/*function editStudent(index) {
-    console.log(index)
-    const dialog = document.querySelector("#studentEditDialog");
-    dialog.showModal()
-    const closeButton= document.querySelector("#closeStudentDialog")
-
-    const formName= document.querySelector("#studentNameDialog")
-    formName.value= students[index].name
-    const formId= document.querySelector("#studentidDialog")
-    formId.value= students[index].studentid
-
-    const formButton = document.querySelector("#studentSubmitButton")
-    formButton.addEventListener("click",(event) =>{
-        event.preventDefault();
-        students[index].name=formName.value;
-        students[index].studentid=formId.value;
-        updateStudentTable()
-        dialog.close()
-    })
-
-
-    closeButton.addEventListener("click", () => {
-        dialog.close();
-
-    });
-}*/
 function editStudent(index) {
     const dialog = document.querySelector("#studentEditDialog");
     dialog.showModal()
@@ -296,51 +270,7 @@ function updateCombinedTable(){
     const tableBody = document.querySelector("#coursesAndStudentsTableBody")
     tableBody.innerHTML = ""
 
-    courses.forEach((course,index) =>{
-
-    tableBody.innerHTML+= `
-    <thead>
-                    <tr>
-                        <th>Course Name</th>
-                        <th>Student Name</th>
-                        <th>Student ID </th>
-                        <th>Midterm Score</th>
-                        <th>Final Score</th>
-                        <th>Grade</th>
-                        <th>Status</th>
-
-
-                    </tr>
-                    </thead>`
-
-        course.students.forEach((studentObj,stuIndex ) => {
-            try{
-                //console.log(studentObj)
-                const row=document.createElement("tr");
-                const gradeLetter = calcGradeLetter(studentObj.midterm,studentObj.final,course.gradeScale)
-                row.innerHTML=`
-                <td>${course.courseName}</td>
-                <td>${findStudentById(studentObj.studentid).name}</td>
-                <td>${studentObj.studentid}</td>
-                <td>${studentObj.midterm} </td>
-                <td>${studentObj.final} </td>
-                <td> ${gradeLetter}</td>
-                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
-                 `
-                tableBody.appendChild(row);
-            }
-            catch (error){
-                //console.log("that student cannot be found "+error  )
-
-            }
-
-
-        })
-
-
-
-
-    })
+    listCourses(courses,tableBody,"showAll")
 
     localStorage.setItem("students",JSON.stringify(students))
     localStorage.setItem("courses",JSON.stringify(courses))
@@ -349,21 +279,15 @@ function updateCombinedTable(){
 
 function calcGradeLetter(midterm,final,gradescale){
     const total= 0.4*midterm + 0.6*final;
-
     if (gradescale === "10"){
         return total >= 90 ? "A" : total >= 80 ? "B" : total >= 70 ? "C" : total >= 60 ? "D" : "F";
-
         //return total >= 90 ? "AA" : total >= 85 ? "BA" : total>= 80 ? "BB" : total >=75 ? "CB": total >=70 ? "CC": total >=65 ? "DC": total >=60 ? "DD" : "FF"
     }
     else if (gradescale === "7"){
         return  total >= 93 ? "A" : total >= 86 ? "B" : total >= 79 ? "C" : total >= 72 ? "D" : "F"
-
     }
 
-
 }
-
-
 
 
 document.querySelector("#searchStudentForm").addEventListener("submit",(event) => {
@@ -427,27 +351,14 @@ document.querySelector("#searchStudentForm").addEventListener("submit",(event) =
 
 })
 
-document.querySelector("#searchCourseForm").addEventListener("submit",(event) => {
-    event.preventDefault()
-    const searchedName= document.querySelector("#courseSearch").value;
 
-    const tableCaption=document.querySelector("#searchedCourseTable caption")
-    tableCaption.innerHTML="The results for "+searchedName+":";
-
-    const tableBody= document.querySelector("#searchedCourseTable tbody")
-    tableBody.innerHTML=""
-    const courseResult=courses.filter((course) => course.courseName.includes( searchedName))
-    console.log(courseResult)
-    if (courseResult.length<1){
-        // alert("No course found..")
-        tableCaption.innerHTML="The results for "+searchedName+": Could not be found" ;
-        return
-    }
+function listCourses(courseList,tableBody,filter) {
+    const detailCheckbox = document.querySelector("#detailCheckbox")
+    let passedCount=0
+    let failedCount=0
 
 
-
-
-    courseResult.forEach((course) =>{
+    courseList.forEach((course) =>{
 
         tableBody.innerHTML+= `
         <thead>
@@ -466,9 +377,42 @@ document.querySelector("#searchCourseForm").addEventListener("submit",(event) =>
          </thead>
         `
 
+        if (filter==="passed"){
+            course.students.forEach((student) =>{
+                const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
+                if (gradeLetter !=="F"){
+                    passedCount++
+                    const row=document.createElement("tr");
+                    row.innerHTML = `
+                <td>${course.courseName}</td>
+                <td>${findStudentById(student.studentid).name}</td>
+                <td>${student.studentid}</td>
+                
+                
+                <td>${student.midterm} </td>
+                <td>${student.final} </td>
+                <td> ${gradeLetter}</td>
+                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                 `
+                    tableBody.appendChild(row);
+                }
+                else{
+                    failedCount++
+                }
+
+            })
+        }
+        else if (filter==="showAll")
         course.students.forEach((student) =>{
+
             const row=document.createElement("tr");
             const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
+            if (gradeLetter !=="F"){
+                passedCount++
+            }
+            else {
+                failedCount++
+            }
             row.innerHTML=`
                 <td>${course.courseName}</td>
                 <td>${findStudentById(student.studentid).name}</td>
@@ -483,11 +427,123 @@ document.querySelector("#searchCourseForm").addEventListener("submit",(event) =>
             tableBody.appendChild(row);
         })
 
+        else if (filter==="failed"){
+            course.students.forEach((student) =>{
+                const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
+                if (gradeLetter ==="F"){
+                    failedCount++
+                    const row=document.createElement("tr");
+                    row.innerHTML = `
+                <td>${course.courseName}</td>
+                <td>${findStudentById(student.studentid).name}</td>
+                <td>${student.studentid}</td>
+                
+                
+                <td>${student.midterm} </td>
+                <td>${student.final} </td>
+                <td> ${gradeLetter}</td>
+                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                 `
+                    tableBody.appendChild(row);
+                }
+                else {
+                    passedCount++
+                }
+
+            })
+        }
+
+        if (detailCheckbox.checked){
+            document.querySelector("ul").style="list-style: disc;"
+
+            document.querySelector("#failedStu").innerHTML=`Number of failed Students:${failedCount}`
+            document.querySelector("#passedStu").innerHTML=`Number of passed Students:${passedCount}`
+            document.querySelector("#meanOfCourse").innerHTML=`Mean of class: ${calcMeanOfCourse(course)}`
+        }
+        else{
+            document.querySelector("ul").style="list-style: none;"
+            document.querySelector("#failedStu").innerHTML=""
+            document.querySelector("#passedStu").innerHTML=""
+            document.querySelector("#meanOfCourse").innerHTML=``
+        }
+
     })
+}
+
+function calcMeanOfCourse(course){
+    // A:4 B:3 C:2 D:1 F:0
+    let mean=0
+    course.students.forEach((student) => {
+        const score=student.midterm*0.4+ student.final*0.6
+        mean+=score
+    })
+    mean = mean/course.students.length; // then we divide the whole additions to length of courses to find it
+    return mean
+}
+
+
+
+const searchCourseFunc = (event,method) => {
+
+    event.preventDefault()
+    const tableCaption=document.querySelector("#searchedCourseTable caption")
+    const filterSelection = document.querySelector("#filterSelection")
+
+
+
+    let searchedName=""
+    if(method==="search"){
+        searchedName= document.querySelector("#courseSearch").value;
+        tableCaption.innerHTML="The results for "+searchedName+":";
+    }
+    else if (method==="selection") {
+        searchedName = document.querySelector("#courseSearchSelection").value;
+        tableCaption.innerHTML=searchedName
+    }
+    const courseResult=courses.filter((course) => course.courseName.includes( searchedName))
+
+    console.log(courseResult)
+    if (courseResult.length<1){
+        // alert("No course found..")
+        tableCaption.innerHTML="The results for "+searchedName+": Could not be found" ;
+        return
+    }
+
+    const tableBody= document.querySelector("#searchedCourseTable tbody")
+    tableBody.innerHTML=""
+
+
+    if(filterSelection.value==="passed"){
+        listCourses(courseResult,tableBody,"passed")
+    }else if(filterSelection.value==="failed"){
+        listCourses(courseResult,tableBody,"failed")
+    }
+    else{
+        listCourses(courseResult,tableBody,"showAll")
+    }
+
+
+
+}
+function populateCourseSelection(){
+    const courseSelect=document.querySelector("#courseSearchSelection")
+    courseSelect.innerHTML=""
+
+    courses.forEach(course => {
+        const option = `<option value="${course.courseName}">${course.courseName}</option>`;
+        courseSelect.innerHTML += option;
+
+    });
+}
+
+document.querySelector("#searchCourseForm").addEventListener("submit",(event) =>{
+    searchCourseFunc(event,"search")
 
 })
 
-
+document.querySelector("#searchCourseForm2").addEventListener("submit",(event) =>{
+    searchCourseFunc(event,"selection")
+})
 
 
 
