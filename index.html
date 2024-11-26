@@ -30,10 +30,12 @@
     <div class="container">
       <aside>
         <button onclick="router('courses')">Add Courses</button>
-        <button onclick="router('students')">Add Students</button>
+        <button onclick="router('students')">Add/Edit Students </button>
         <button onclick="router('editCourse')">Add students into courses</button>
+          <button onclick="router('searchStudent')">Search Students</button>
+          <button onclick="router('searchCourse')">Search Courses</button>
 
-        this is side nav
+
       </aside>
 
       <main>
@@ -49,7 +51,7 @@
                         <option value="10">10</option>
                         <option value="7">7</option>
                     </select>
-                    <button type="submit" onclick="() => handleCourseAddition()">Add Course</button>
+                    <button type="submit" >Add Course</button>
                 </form>
 
             </div>
@@ -83,7 +85,7 @@
                     <label for="studentName">Student Name:</label>
                     <input type="text" name="studentName" id="studentName" placeholder="Arda Akça" required>
                     <label for="studentid">Student ID: </label>
-                    <input type="number"  name="studentid" id="studentid" placeholder="2207090xx"  required>
+                    <input type="number"  name="studentid" id="studentid" placeholder="2x07090xx"  required>
                     <button type="submit">Add Student</button>
                 </form>
 
@@ -141,27 +143,27 @@
                     <button type="submit">Enter</button>
                 </form>
 
+                <form id="selectCourseForm">
+
+                </form>
+
+
+
+
+
                 <table id="coursesAndStudentsTable">
                     <caption >
-                        Courses and Students
+                       All Courses and Students
                     </caption>
-                    <thead>
-                    <tr>
-                        <th>Course Name</th>
-                        <th>Student Name</th>
-                        <th>Student ID </th>
-                        <th>Midterm Score</th>
-                        <th>Final Score</th>
-                        <th>Grade</th>
 
-
-                    </tr>
-                    </thead>
 
                     <tbody id="coursesAndStudentsTableBody">
                     <!-- js inserts stuff here -->
                     </tbody>
                 </table>
+
+
+
 
             </div>
 
@@ -169,6 +171,55 @@
 
         </section>
 
+      <section id="searchStudent">
+          <h2>Search students</h2>
+
+          <form id="searchStudentForm">
+              <label for="studentSearch">Search Student By Name</label>
+              <input type="text" id="studentSearch" name="studentSearch" placeholder="Ege Bayrak" >
+
+              <button type="submit"> Search Student</button>
+          </form>
+
+          <table id="searchedStudentTable">
+              <caption >
+
+              </caption>
+
+
+              <tbody id="searchedStudentTableBody">
+              <!-- js inserts stuff here -->
+              </tbody>
+
+
+          </table>
+      </section>
+
+          <section id="searchCourse">
+              <h2>Search Courses</h2>
+
+
+
+              <form id="searchCourseForm">
+                  <label for="courseSearch">Search Course By Name</label>
+                  <input type="text" id="courseSearch" name="courseSearch" placeholder="Web Dev" >
+
+                  <button type="submit"> Search Course</button>
+              </form>
+
+              <table id="searchedCourseTable">
+                  <caption >
+
+                  </caption>
+
+
+                  <tbody id="searchedCourseTableBody">
+                  <!-- js inserts stuff here -->
+                  </tbody>
+
+
+              </table>
+          </section>
 
       </main>
     </div>

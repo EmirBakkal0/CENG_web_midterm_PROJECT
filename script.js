@@ -1,5 +1,16 @@
 function router(divID){
 
+    if (divID==="editCourse"){
+        updateCombinedDropdowns()
+        updateCombinedTable()
+
+    }
+    else if(divID === "students"){
+        updateStudentTable()
+
+    }
+
+
     const sections=document.querySelectorAll("section")
     sections.forEach(item => item.classList.remove("visible"))
     const div =document.querySelector("#"+divID)
@@ -20,6 +31,8 @@ class Course{
         this.students.push({"studentid":student,"midterm":midterm,"final":final})
     }
 
+
+
 }
 
 
@@ -33,11 +46,26 @@ class Student{
     editName(name){
         this.name= name;
     }
-    addCourse(course,midterm,final){
-        this.courses.push({"courseName":course.courseName,"midterm":midterm,"final":final})
+    addCourse(courseName,midterm,final,gradeScale){
+        this.courses.push({"courseName":courseName,"midterm":midterm,"final":final,"gradeScale":gradeScale})
+    }
+    gradeLetterToGPA(l){
+        return l === "A" ? 4 : l=== "B" ? 3 : l==="C" ?2 : l=== "D"? 1 : 0
+    }
+    calcGPA(){
+        // A:4 B:3 C:2 D:1 F:0
+        let gpa=0
+        this.courses.forEach((course) => {
+            const gradeLetter=calcGradeLetter(course.midterm,course.final,course.gradeScale) // we find the letters corresponding value
+            gpa += this.gradeLetterToGPA(gradeLetter)  // add it to gpa
+
+        })
+        gpa = gpa/this.courses.length; // then we divide the whole additions to length of courses to find it
+        return gpa
     }
     
 }
+
 
 
 const coursesJson= JSON.parse( localStorage.getItem("courses")) ?? []
@@ -46,15 +74,10 @@ const courses= coursesJson.map((course) => new Course(course.courseName,course.g
 console.log(courses)
 
 
-// const courses=[
-//     new Course("Database","7")
-// ]
+
 
 const studentsJson= JSON.parse(localStorage.getItem("students")) ?? []
 const students= studentsJson.map((student) => new Student(student.name,student.studentid,student.courses))
-/*const students=[
-    new Student("Emir Bakkal","220709004")
-]*/
 
 
 const courseForm= document.querySelector("#courseForm")
@@ -81,6 +104,7 @@ function updateCourseTable(){
             <td>${courses[i].courseName}</td>
             <td>${courses[i].gradeScale}</td>
             <td>
+                <button onclick="router('searchCourse')" >View Details</button>
                 <button onclick="delCourse(${i})" > Delete Course </button>
             </td>
          </tr>`
@@ -152,6 +176,7 @@ function delStudent(index){
 }
 
 function findStudentById(id){
+
     return students.find((student) => student.studentid===id)
 }
 
@@ -217,16 +242,18 @@ function editStudent(index) {
 function updateCombinedDropdowns() {
     const courseSelect = document.querySelector("#courseSelect");
     const studentSelect = document.querySelector("#studentSelect");
+    studentSelect.innerHTML=""
     students.forEach(student =>{
         const option = `<option value="${student.name}">${student.name}</option>`;
         studentSelect.innerHTML += option;
     })
-    // const statsCourseSelect = document.getElementById("statsCourseSelect");
-    // courseSelect.innerHTML = `<option value="">Select a Course</option>`;
+
+    courseSelect.innerHTML=""
+
     courses.forEach(course => {
         const option = `<option value="${course.courseName}">${course.courseName}</option>`;
         courseSelect.innerHTML += option;
-        // statsCourseSelect.innerHTML += option;
+
     });
 }
 
@@ -257,34 +284,57 @@ combinedForm.addEventListener("submit", (event) =>{
 
     chosenCourse.addStudent(chosenStudent.studentid,midterm,final)
     console.log("nigg"+chosenStudent.studentid,midterm,final)
-    //chosenStudent.addCourse(chosenCourse,midterm,final)
+    chosenStudent.addCourse(course,midterm,final,chosenCourse.gradeScale)
 
     updateCombinedTable()
      event.target.reset();
 
 })
 
-function updateStudentsinCourseArray(){
-
-}
 
 function updateCombinedTable(){
     const tableBody = document.querySelector("#coursesAndStudentsTableBody")
     tableBody.innerHTML = ""
 
     courses.forEach((course,index) =>{
+
+    tableBody.innerHTML+= `
+    <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Student Name</th>
+                        <th>Student ID </th>
+                        <th>Midterm Score</th>
+                        <th>Final Score</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+
+
+                    </tr>
+                    </thead>`
+
         course.students.forEach((studentObj,stuIndex ) => {
-            console.log(studentObj)
-            const row=document.createElement("tr");
-            row.innerHTML=`
+            try{
+                //console.log(studentObj)
+                const row=document.createElement("tr");
+                const gradeLetter = calcGradeLetter(studentObj.midterm,studentObj.final,course.gradeScale)
+                row.innerHTML=`
                 <td>${course.courseName}</td>
                 <td>${findStudentById(studentObj.studentid).name}</td>
                 <td>${studentObj.studentid}</td>
                 <td>${studentObj.midterm} </td>
                 <td>${studentObj.final} </td>
-                <td> ${calcGradeLetter(studentObj.midterm,studentObj.final,course.gradeScale)}</td>
+                <td> ${gradeLetter}</td>
+                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
                  `
-            tableBody.appendChild(row);
+                tableBody.appendChild(row);
+            }
+            catch (error){
+                //console.log("that student cannot be found "+error  )
+
+            }
+
+
         })
 
 
@@ -315,7 +365,132 @@ function calcGradeLetter(midterm,final,gradescale){
 
 
 
+
+document.querySelector("#searchStudentForm").addEventListener("submit",(event) => {
+    event.preventDefault()
+    const searchedName= document.querySelector("#studentSearch").value;
+
+    const tableCaption=document.querySelector("#searchedStudentTable caption")
+    tableCaption.innerHTML="The results for "+searchedName+":";
+
+    const tableBody= document.querySelector("#searchedStudentTable tbody")
+    tableBody.innerHTML=""
+    const studentResult=students.filter((student) => student.name.includes( searchedName))
+    console.log(studentResult)
+    if (studentResult.length<1){
+        // alert("No students found..")
+        tableCaption.innerHTML="The results for "+searchedName+": Could not be found" ;
+        return
+    }
+
+
+
+
+    studentResult.forEach((student) =>{
+        const gpa = document.createElement("h2");
+        gpa.innerHTML="GPA OF "+ student.name +" is: " + student.calcGPA().toPrecision(2)
+        tableBody.appendChild(gpa)
+
+        tableBody.innerHTML+= `
+        <thead>
+                 <tr>
+                     <th>Student Name</th>
+                     <th>Student ID </th>
+                     <th>Course Name</th>
+                     <th>Midterm Score</th>
+                     <th>Final Score</th>
+                     <th>Grade</th>
+                     <th>Status</th>
+
+
+                 </tr>
+         </thead>
+        `
+
+            student.courses.forEach((course) =>{
+            const row=document.createElement("tr");
+            const gradeLetter = calcGradeLetter(course.midterm,course.final,course.gradeScale)
+            row.innerHTML=`
+                <td>${student.name}</td>
+                <td>${student.studentid}</td>
+                <td>${course.courseName}</td>
+                
+                <td>${course.midterm} </td>
+                <td>${course.final} </td>
+                <td> ${gradeLetter}</td>
+                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                 `
+            tableBody.appendChild(row);
+        })
+
+    })
+
+})
+
+document.querySelector("#searchCourseForm").addEventListener("submit",(event) => {
+    event.preventDefault()
+    const searchedName= document.querySelector("#courseSearch").value;
+
+    const tableCaption=document.querySelector("#searchedCourseTable caption")
+    tableCaption.innerHTML="The results for "+searchedName+":";
+
+    const tableBody= document.querySelector("#searchedCourseTable tbody")
+    tableBody.innerHTML=""
+    const courseResult=courses.filter((course) => course.courseName.includes( searchedName))
+    console.log(courseResult)
+    if (courseResult.length<1){
+        // alert("No course found..")
+        tableCaption.innerHTML="The results for "+searchedName+": Could not be found" ;
+        return
+    }
+
+
+
+
+    courseResult.forEach((course) =>{
+
+        tableBody.innerHTML+= `
+        <thead>
+                 <tr>
+                     <th>Course Name</th>
+                     <th>Student Name</th>
+                     <th>Student ID </th>
+                     
+                     <th>Midterm Score</th>
+                     <th>Final Score</th>
+                     <th>Grade</th>
+                     <th>Status</th>
+
+
+                 </tr>
+         </thead>
+        `
+
+        course.students.forEach((student) =>{
+            const row=document.createElement("tr");
+            const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
+            row.innerHTML=`
+                <td>${course.courseName}</td>
+                <td>${findStudentById(student.studentid).name}</td>
+                <td>${student.studentid}</td>
+                
+                
+                <td>${student.midterm} </td>
+                <td>${student.final} </td>
+                <td> ${gradeLetter}</td>
+                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                 `
+            tableBody.appendChild(row);
+        })
+
+    })
+
+})
+
+
+
+
+
+
 updateCourseTable()
-updateStudentTable()
-updateCombinedDropdowns()
-updateCombinedTable()
+
