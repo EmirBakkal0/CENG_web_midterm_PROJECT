@@ -64,6 +64,9 @@ class Student{
 
         })
         gpa = gpa/this.courses.length; // then we divide the whole additions to length of courses to find it
+        if (isNaN(gpa)){
+            return 0
+        }
         return gpa
     }
     
@@ -88,8 +91,14 @@ courseForm.addEventListener("submit", (event) =>{
     event.preventDefault();
 
     const courseName= document.querySelector("#courseName").value
+    if (courses.find((crs) => crs.courseName === courseName) ){
+        alert("There's already a course with the same name..")
+        return
+    }
+
     const gradeScale= document.querySelector("#gradeScale").value
-    console.log(courseName,gradeScale);
+
+
     courses.push(new Course(courseName,gradeScale,[]))
     updateCourseTable()
 
@@ -136,8 +145,12 @@ studentForm.addEventListener("submit", (event) =>{
     event.preventDefault();
 
     const studentName= document.querySelector("#studentName").value
-    const studentid= document.querySelector("#studentid").value
-    students.push(new Student(studentName,studentid,[]))
+    const studentID= document.querySelector("#studentid").value
+    if (findStudentById(studentID)){
+        alert("A student with the same ID already exists..")
+        return;
+    }
+    students.push(new Student(studentName,studentID,[]))
     updateStudentTable()
     event.target.reset();
 
@@ -158,7 +171,7 @@ function updateStudentTable(){
       <td>
           <button onclick="editStudent(${index})"> Edit Student </button>
           <button onclick="delStudent(${index})" > Delete Student </button>
-          <span>GPA:${+student.calcGPA().toPrecision(2)}</span>
+          <span>GPA:${+student.calcGPA().toPrecision(3)}</span>
       </td>
       `;
         tableBody.appendChild(row);
@@ -199,9 +212,11 @@ function editStudent(index) {
         console.log(selectedStudent)
 
         selectedStudent.editName(formName.value)
-
-
+        alert("Student's name is updated to: "+formName.value)
+        window.location.reload();
+        router("students")
         updateStudentTable()
+
         dialog.close()
     })
 
@@ -235,33 +250,25 @@ const combinedForm= document.querySelector("#editCourseForm")
 
 combinedForm.addEventListener("submit", (event) =>{
     event.preventDefault();
-    const course= document.querySelector("#courseSelect").value
-    console.log(course)
-    const student= document.querySelector("#studentSelect").value
+    const courseName= document.querySelector("#courseSelect").value
+    console.log(courseName)
+    const studentName= document.querySelector("#studentSelect").value
     const midterm= document.querySelector("#midterm").value
     const final= document.querySelector("#final").value
 
-    let chosenCourse=null
-    let chosenStudent=null
-    for (let i=0; i<courses.length; i++){
-        if (courses[i].courseName===course){
-            chosenCourse=courses[i]
-            console.log("chosen course:"+chosenCourse.courseName)
-        }
-    }
-    for (let i=0; i<students.length; i++){
-        if (students[i].name===student){
-            chosenStudent=students[i]
-            console.log("chosen student:"+chosenStudent.studentid)
-        }
+    const chosenCourse=courses.find((course) => course.courseName===courseName)
+    const chosenStudent=students.find((studentObj) => studentObj.name===studentName)
+    console.log(chosenCourse.students)
+    if (chosenCourse.students.find((student) => student.studentid===  chosenStudent.studentid)){
+        alert(chosenStudent.name+ " is already in "+chosenCourse.courseName)
+        return
     }
 
     chosenCourse.addStudent(chosenStudent.studentid,midterm,final)
-    console.log("nigg"+chosenStudent.studentid,midterm,final)
-    chosenStudent.addCourse(course,midterm,final,chosenCourse.gradeScale)
+    chosenStudent.addCourse(courseName,midterm,final,chosenCourse.gradeScale)
 
     updateCombinedTable()
-     event.target.reset();
+     // event.target.reset();
 
 })
 
@@ -299,7 +306,7 @@ document.querySelector("#searchStudentForm").addEventListener("submit",(event) =
 
     const tableBody= document.querySelector("#searchedStudentTable tbody")
     tableBody.innerHTML=""
-    const studentResult=students.filter((student) => student.name.includes( searchedName))
+    const studentResult=students.filter((student) => student.name.toLowerCase().includes( searchedName.toLowerCase()))
     console.log(studentResult)
     if (studentResult.length<1){
         // alert("No students found..")
@@ -478,7 +485,7 @@ function calcMeanOfCourse(course){
         mean+=score
     })
     mean = mean/course.students.length; // then we divide the whole additions to length of courses to find it
-    return mean
+    return isNaN(mean) ? 0 : mean
 }
 
 
@@ -500,7 +507,7 @@ const searchCourseFunc = (event,method) => {
         searchedName = document.querySelector("#courseSearchSelection").value;
         tableCaption.innerHTML=searchedName
     }
-    const courseResult=courses.filter((course) => course.courseName.includes( searchedName))
+    const courseResult=courses.filter((course) => course.courseName.toLowerCase().includes( searchedName.toLowerCase()))
 
     console.log(courseResult)
     if (courseResult.length<1){
