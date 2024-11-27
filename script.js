@@ -155,6 +155,39 @@ function delCourse(index){
     updateCourseTable();
     
 }
+function editStudent(index) {
+    const dialog = document.querySelector("#studentEditDialog");
+    dialog.showModal()
+    const closeButton= document.querySelector("#closeStudentDialog")
+
+    const formName= document.querySelector("#studentNameDialog")
+    formName.value= students[index].name
+    //const formId= document.querySelector("#studentidDialog")
+    const id= students[index].studentid
+    // formId.value=id
+
+    const formButton = document.querySelector("#studentSubmitButton")
+    formButton.addEventListener("click",(event) =>{
+        event.preventDefault();
+        console.log(id)
+        const selectedStudent=students.find((student) => student.studentid===id)
+        console.log(selectedStudent)
+
+        selectedStudent.editName(formName.value)
+        alert("Student's name is updated to: "+formName.value)
+        window.location.reload();
+        router("students")
+        updateStudentTable()
+
+        dialog.close()
+    })
+
+
+    closeButton.addEventListener("click", () => {
+        dialog.close();
+
+    });
+}
 
 const studentForm= document.querySelector("#studentForm")
 studentForm.addEventListener("submit", (event) =>{
@@ -385,7 +418,7 @@ function listCourses(courseList,tableBody,filter) {
                 <td>${student.final} </td>
                 <td> ${gradeLetter}</td>
                 <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
-                <td><button onclick="editStudent('${student.studentid}','${course.courseName}')">Edit Score</button>
+                <td><button onclick="editScore('${student.studentid}','${course.courseName}')">Edit Score</button>
                     <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
                 </td>
                 
@@ -419,7 +452,7 @@ function listCourses(courseList,tableBody,filter) {
                 <td>${student.final} </td>
                 <td> ${gradeLetter}</td>
                 <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
-                <td><button onclick="editStudent('${student.studentid}','${course.courseName}')">Edit Score</button>
+                <td><button onclick="editScore('${student.studentid}','${course.courseName}')">Edit Score</button>
                     <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
                 </td>
                 
@@ -443,7 +476,7 @@ function listCourses(courseList,tableBody,filter) {
                 <td>${student.final} </td>
                 <td> ${gradeLetter}</td>
                 <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
-                <td><button onclick="editStudent('${student.studentid}','${course.courseName}')">Edit Score</button>
+                <td><button onclick="editScore('${student.studentid}','${course.courseName}')">Edit Score</button>
                     <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
                 </td>
                 
@@ -484,7 +517,7 @@ function delScore(stuID,crsName){
     const table= document.querySelector("#searchedCourseTable tbody")
     table.innerHTML=""
 }
-function editStudent(stuID,crsName) {
+function editScore(stuID,crsName) {
     const dialog = document.querySelector("#scoreEditDialog");
     dialog.showModal()
     const closeButton= document.querySelector("#closeScoreDialog")
