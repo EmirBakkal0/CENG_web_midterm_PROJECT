@@ -34,6 +34,11 @@ class Course{
         this.students.push({"studentid":student,"midterm":midterm,"final":final})
     }
 
+    delStudent(studentID){
+        const index=this.students.findIndex((student) => student.studentid=== studentID)
+
+        this.students.splice(index,1)
+    }
 
 
 }
@@ -68,6 +73,17 @@ class Student{
             return 0
         }
         return gpa
+    }
+
+    delCourse(crsName){
+        const crs= courses.find((course) => course.courseName===crsName)
+        crs.delStudent(this.studentid)
+
+        const index=this.courses.findIndex((course) => course.courseName=== crsName)
+        console.log(index+ "ok ??")
+        this.courses.splice(index,1)
+        updateCourseTable()
+        updateStudentTable()
     }
     
 }
@@ -193,39 +209,6 @@ function findStudentById(id){
     return students.find((student) => student.studentid===id)
 }
 
-function editStudent(index) {
-    const dialog = document.querySelector("#studentEditDialog");
-    dialog.showModal()
-    const closeButton= document.querySelector("#closeStudentDialog")
-
-    const formName= document.querySelector("#studentNameDialog")
-    formName.value= students[index].name
-    //const formId= document.querySelector("#studentidDialog")
-    const id= students[index].studentid
-    // formId.value=id
-
-    const formButton = document.querySelector("#studentSubmitButton")
-    formButton.addEventListener("click",(event) =>{
-        event.preventDefault();
-        console.log(id)
-        const selectedStudent=students.find((student) => student.studentid===id)
-        console.log(selectedStudent)
-
-        selectedStudent.editName(formName.value)
-        alert("Student's name is updated to: "+formName.value)
-        window.location.reload();
-        router("students")
-        updateStudentTable()
-
-        dialog.close()
-    })
-
-
-    closeButton.addEventListener("click", () => {
-        dialog.close();
-
-    });
-}
 
 
 function updateCombinedDropdowns() {
@@ -259,6 +242,7 @@ combinedForm.addEventListener("submit", (event) =>{
     const chosenCourse=courses.find((course) => course.courseName===courseName)
     const chosenStudent=students.find((studentObj) => studentObj.name===studentName)
     console.log(chosenCourse.students)
+
     if (chosenCourse.students.find((student) => student.studentid===  chosenStudent.studentid)){
         alert(chosenStudent.name+ " is already in "+chosenCourse.courseName)
         return
@@ -378,6 +362,7 @@ function listCourses(courseList,tableBody,filter) {
                      <th>Final Score</th>
                      <th>Grade</th>
                      <th>Status</th>
+                     <th>Settings</th>
 
 
                  </tr>
@@ -385,7 +370,7 @@ function listCourses(courseList,tableBody,filter) {
         `
 
         if (filter==="passed"){
-            course.students.forEach((student) =>{
+            course.students.forEach((student, index) =>{
                 const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
                 if (gradeLetter !=="F"){
                     passedCount++
@@ -400,6 +385,10 @@ function listCourses(courseList,tableBody,filter) {
                 <td>${student.final} </td>
                 <td> ${gradeLetter}</td>
                 <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                <td><button onclick="editStudent('${student.studentid}','${course.courseName}')">Edit Score</button>
+                    <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
+                </td>
+                
                  `
                     tableBody.appendChild(row);
                 }
@@ -430,6 +419,10 @@ function listCourses(courseList,tableBody,filter) {
                 <td>${student.final} </td>
                 <td> ${gradeLetter}</td>
                 <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                <td><button onclick="editStudent('${student.studentid}','${course.courseName}')">Edit Score</button>
+                    <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
+                </td>
+                
                  `
             tableBody.appendChild(row);
         })
@@ -450,6 +443,12 @@ function listCourses(courseList,tableBody,filter) {
                 <td>${student.final} </td>
                 <td> ${gradeLetter}</td>
                 <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                <td><button onclick="editStudent('${student.studentid}','${course.courseName}')">Edit Score</button>
+                    <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
+                </td>
+                
+                
+                    
                  `
                     tableBody.appendChild(row);
                 }
@@ -476,6 +475,56 @@ function listCourses(courseList,tableBody,filter) {
 
     })
 }
+function delScore(stuID,crsName){
+
+    const stu=findStudentById(stuID.toString())
+    stu.delCourse(crsName)
+    updateCombinedTable()
+    // alert("Score Deleted for "+crsName)
+    const table= document.querySelector("#searchedCourseTable tbody")
+    table.innerHTML=""
+}
+function editStudent(stuID,crsName) {
+    const dialog = document.querySelector("#scoreEditDialog");
+    dialog.showModal()
+    const closeButton= document.querySelector("#closeScoreDialog")
+
+    const midterm= document.querySelector("#midtermDialog")
+    const final= document.querySelector("#finalDialog")
+
+    // midterm.value= students[index].name
+    //const formId= document.querySelector("#studentidDialog")
+    // const id= students[index].studentid
+    // formId.value=id
+
+    const formButton = document.querySelector("#scoreSubmitButton")
+    formButton.addEventListener("click",(event) =>{
+        event.preventDefault();
+        if (midterm.value> 100 || midterm.value <0 || final.value <0  || final.value >100){
+            alert("Score values should be between 0-100")
+            return
+        }
+        delScore(stuID,crsName)
+
+        const chosenCourse=courses.find((course) => course.courseName===crsName)
+        const chosenStudent=students.find((studentObj) => studentObj.studentid===stuID)
+
+        chosenCourse.addStudent(chosenStudent.studentid,midterm.value.toString(),final.value.toString())
+        chosenStudent.addCourse(crsName,midterm.value.toString(),final.value.toString(),chosenCourse.gradeScale)
+
+        updateCombinedTable()
+
+
+        dialog.close()
+    })
+
+
+    closeButton.addEventListener("click", () => {
+        dialog.close();
+
+    });
+}
+
 
 function calcMeanOfCourse(course){
     // A:4 B:3 C:2 D:1 F:0

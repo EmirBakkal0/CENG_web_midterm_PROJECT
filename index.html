@@ -159,6 +159,7 @@
 
 
 
+
             <div class="table-container">
                 <table id="coursesAndStudentsTable">
                     <caption >
@@ -261,7 +262,19 @@
 
 
           </section>
+          <dialog id="scoreEditDialog">
 
+              <h2>Edit score</h2>
+              <form id="scoreDialogForm" >
+                  <label for="midtermDialog">Midterm</label>
+                  <input type="number" min="0" max="100"  id="midtermDialog" placeholder="0-100" value="50" required>
+                  <label for="finalDialog">Final</label>
+                  <input type="number" min="0" max="100"  id="finalDialog" placeholder="0-100" value="50" required>
+
+                  <button id="scoreSubmitButton">Edit Student</button>
+              </form>
+              <button id="closeScoreDialog" autofocus>Close without saving</button>
+          </dialog>
       </main>
     </div>
   </body>
