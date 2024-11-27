@@ -492,10 +492,6 @@ function editStudent(stuID,crsName) {
     const midterm= document.querySelector("#midtermDialog")
     const final= document.querySelector("#finalDialog")
 
-    // midterm.value= students[index].name
-    //const formId= document.querySelector("#studentidDialog")
-    // const id= students[index].studentid
-    // formId.value=id
 
     const formButton = document.querySelector("#scoreSubmitButton")
     formButton.addEventListener("click",(event) =>{
@@ -512,8 +508,9 @@ function editStudent(stuID,crsName) {
         chosenCourse.addStudent(chosenStudent.studentid,midterm.value.toString(),final.value.toString())
         chosenStudent.addCourse(crsName,midterm.value.toString(),final.value.toString(),chosenCourse.gradeScale)
 
+        alert("Edited "+chosenStudent.name+"'s score for "+chosenCourse.courseName)
+        window.location.reload()
         updateCombinedTable()
-
 
         dialog.close()
     })
