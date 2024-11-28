@@ -108,7 +108,7 @@ console.log(courses)
 
 
 if (!localStorage.getItem("students")){
-    fetch("student.json" )
+    fetch("students.json" )
         .then(response => response.json())
         .then(data => localStorage.setItem("students",JSON.stringify(data)))
 }
