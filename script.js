@@ -388,129 +388,131 @@ function listCourses(courseList,tableBody,filter) {
 
 
     courseList.forEach((course) =>{
+        if(course.students.length!==0){
+            
+        
+            tableBody.innerHTML+= `
+            <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Student Name</th>
+                        <th>Student ID </th>
+                        
+                        <th>Midterm Score</th>
+                        <th>Final Score</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+                        <th>Settings</th>
 
-        tableBody.innerHTML+= `
-        <thead>
-                 <tr>
-                     <th>Course Name</th>
-                     <th>Student Name</th>
-                     <th>Student ID </th>
-                     
-                     <th>Midterm Score</th>
-                     <th>Final Score</th>
-                     <th>Grade</th>
-                     <th>Status</th>
-                     <th>Settings</th>
 
+                    </tr>
+            </thead>
+            `
 
-                 </tr>
-         </thead>
-        `
+            if (filter==="passed"){
+                course.students.forEach((student, index) =>{
+                    const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
+                    if (gradeLetter !=="F"){
+                        passedCount++
+                        const row=document.createElement("tr");
+                        row.innerHTML = `
+                    <td>${course.courseName}</td>
+                    <td>${findStudentById(student.studentid).name}</td>
+                    <td>${student.studentid}</td>
+                    
+                    
+                    <td>${student.midterm} </td>
+                    <td>${student.final} </td>
+                    <td> ${gradeLetter}</td>
+                    <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                    <td><button onclick="editScore('${student.studentid}','${course.courseName}','${student.midterm}','${student.final}')">Edit Score</button>
+                        <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
+                    </td>
+                    
+                    `
+                        tableBody.appendChild(row);
+                    }
+                    else{
+                        failedCount++
+                    }
 
-        if (filter==="passed"){
-            course.students.forEach((student, index) =>{
+                })
+            }
+            else if (filter==="showAll")
+            course.students.forEach((student) =>{
+
+                const row=document.createElement("tr");
                 const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
                 if (gradeLetter !=="F"){
                     passedCount++
-                    const row=document.createElement("tr");
-                    row.innerHTML = `
-                <td>${course.courseName}</td>
-                <td>${findStudentById(student.studentid).name}</td>
-                <td>${student.studentid}</td>
-                
-                
-                <td>${student.midterm} </td>
-                <td>${student.final} </td>
-                <td> ${gradeLetter}</td>
-                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
-                <td><button onclick="editScore('${student.studentid}','${course.courseName}')">Edit Score</button>
-                    <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
-                </td>
-                
-                 `
-                    tableBody.appendChild(row);
-                }
-                else{
-                    failedCount++
-                }
-
-            })
-        }
-        else if (filter==="showAll")
-        course.students.forEach((student) =>{
-
-            const row=document.createElement("tr");
-            const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
-            if (gradeLetter !=="F"){
-                passedCount++
-            }
-            else {
-                failedCount++
-            }
-            row.innerHTML=`
-                <td>${course.courseName}</td>
-                <td>${findStudentById(student.studentid).name}</td>
-                <td>${student.studentid}</td>
-                
-                
-                <td>${student.midterm} </td>
-                <td>${student.final} </td>
-                <td> ${gradeLetter}</td>
-                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
-                <td><button onclick="editScore('${student.studentid}','${course.courseName}')">Edit Score</button>
-                    <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
-                </td>
-                
-                 `
-            tableBody.appendChild(row);
-        })
-
-        else if (filter==="failed"){
-            course.students.forEach((student) =>{
-                const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
-                if (gradeLetter ==="F"){
-                    failedCount++
-                    const row=document.createElement("tr");
-                    row.innerHTML = `
-                <td>${course.courseName}</td>
-                <td>${findStudentById(student.studentid).name}</td>
-                <td>${student.studentid}</td>
-                
-                
-                <td>${student.midterm} </td>
-                <td>${student.final} </td>
-                <td> ${gradeLetter}</td>
-                <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
-                <td><button onclick="editScore('${student.studentid}','${course.courseName}')">Edit Score</button>
-                    <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
-                </td>
-                
-                
-                    
-                 `
-                    tableBody.appendChild(row);
                 }
                 else {
-                    passedCount++
+                    failedCount++
                 }
-
+                row.innerHTML=`
+                    <td>${course.courseName}</td>
+                    <td>${findStudentById(student.studentid).name}</td>
+                    <td>${student.studentid}</td>
+                    
+                    
+                    <td>${student.midterm} </td>
+                    <td>${student.final} </td>
+                    <td> ${gradeLetter}</td>
+                    <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                    <td><button onclick="editScore('${student.studentid}','${course.courseName}','${student.midterm}','${student.final}')">Edit Score</button>
+                        <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
+                    </td>
+                    
+                    `
+                tableBody.appendChild(row);
             })
-        }
 
-        if (detailCheckbox.checked){
-            document.querySelector("ul").style="list-style: disc;"
+            else if (filter==="failed"){
+                course.students.forEach((student) =>{
+                    const gradeLetter = calcGradeLetter(student.midterm,student.final,course.gradeScale)
+                    if (gradeLetter ==="F"){
+                        failedCount++
+                        const row=document.createElement("tr");
+                        row.innerHTML = `
+                    <td>${course.courseName}</td>
+                    <td>${findStudentById(student.studentid).name}</td>
+                    <td>${student.studentid}</td>
+                    
+                    
+                    <td>${student.midterm} </td>
+                    <td>${student.final} </td>
+                    <td> ${gradeLetter}</td>
+                    <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
+                    <td><button onclick="editScore('${student.studentid}','${course.courseName}','${student.midterm}','${student.final}')">Edit Score</button>
+                        <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
+                    </td>
+                    
+                    
+                        
+                    `
+                        tableBody.appendChild(row);
+                    }
+                    else {
+                        passedCount++
+                    }
 
-            document.querySelector("#failedStu").innerHTML=`Number of failed Students:${failedCount}`
-            document.querySelector("#passedStu").innerHTML=`Number of passed Students:${passedCount}`
-            document.querySelector("#meanOfCourse").innerHTML=`Mean of class: ${calcMeanOfCourse(course)}`
-        }
-        else{
-            document.querySelector("ul").style="list-style: none;"
-            document.querySelector("#failedStu").innerHTML=""
-            document.querySelector("#passedStu").innerHTML=""
-            document.querySelector("#meanOfCourse").innerHTML=``
-        }
+                })
+            }
 
+            if (detailCheckbox.checked){
+                document.querySelector("ul").style="list-style: disc;"
+
+                document.querySelector("#failedStu").innerHTML=`Number of failed Students:${failedCount}`
+                document.querySelector("#passedStu").innerHTML=`Number of passed Students:${passedCount}`
+                document.querySelector("#meanOfCourse").innerHTML=`Mean of class: ${calcMeanOfCourse(course)}`
+            }
+            else{
+                document.querySelector("ul").style="list-style: none;"
+                document.querySelector("#failedStu").innerHTML=""
+                document.querySelector("#passedStu").innerHTML=""
+                document.querySelector("#meanOfCourse").innerHTML=``
+            }
+        }   
     })
 }
 function delScore(stuID,crsName){
@@ -522,15 +524,16 @@ function delScore(stuID,crsName){
     const table= document.querySelector("#searchedCourseTable tbody")
     table.innerHTML=""
 }
-function editScore(stuID,crsName) {
+function editScore(stuID,crsName,midtermScore,finalScore) {
     const dialog = document.querySelector("#scoreEditDialog");
     dialog.showModal()
     const closeButton= document.querySelector("#closeScoreDialog")
-
+    
     const midterm= document.querySelector("#midtermDialog")
+    midterm.value=midtermScore
     const final= document.querySelector("#finalDialog")
-
-
+    final.value=finalScore
+    
     const formButton = document.querySelector("#scoreSubmitButton")
     formButton.addEventListener("click",(event) =>{
         event.preventDefault();
@@ -539,9 +542,10 @@ function editScore(stuID,crsName) {
             return
         }
         delScore(stuID,crsName)
-
-        const chosenCourse=courses.find((course) => course.courseName===crsName)
+        
         const chosenStudent=students.find((studentObj) => studentObj.studentid===stuID)
+        const chosenCourse=courses.find((course) => course.courseName===crsName)
+        
 
         chosenCourse.addStudent(chosenStudent.studentid,midterm.value.toString(),final.value.toString())
         chosenStudent.addCourse(crsName,midterm.value.toString(),final.value.toString(),chosenCourse.gradeScale)
