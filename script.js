@@ -94,17 +94,26 @@ class Student{
     
 }
 
-
+if (!localStorage.getItem("courses")){
+    fetch("courses.json" )
+        .then(response => response.json())
+        .then(data => localStorage.setItem("courses",JSON.stringify(data)))
+}
 
 const coursesJson= JSON.parse( localStorage.getItem("courses")) ?? []
-// get courses from local storage if exists or create an empty array
+// get courses from local storage if exists or fetch it from local json file
 const courses= coursesJson.map((course) => new Course(course.courseName,course.gradeScale,course.students))
 console.log(courses)
 
 
 
-
+if (!localStorage.getItem("students")){
+    fetch("student.json" )
+        .then(response => response.json())
+        .then(data => localStorage.setItem("students",JSON.stringify(data)))
+}
 const studentsJson= JSON.parse(localStorage.getItem("students")) ?? []
+
 const students= studentsJson.map((student) => new Student(student.name,student.studentid,student.courses))
 
 
@@ -341,7 +350,7 @@ document.querySelector("#searchStudentForm").addEventListener("submit",(event) =
 
     studentResult.forEach((student) =>{
         const gpa = document.createElement("h2");
-        gpa.innerHTML="GPA OF "+ student.name +" is: " + student.calcGPA().toPrecision(2)
+        gpa.innerHTML="GPA OF "+ student.name +" is: " + student.calcGPA().toPrecision(3)
         tableBody.appendChild(gpa)
 
         tableBody.innerHTML+= `
@@ -427,7 +436,7 @@ function listCourses(courseList,tableBody,filter) {
                     <td>${gradeLetter === "F" ? "Failed" : "Passed"} </td>
                     <td><button onclick="editScore('${student.studentid}','${course.courseName}','${student.midterm}','${student.final}')">Edit Score</button>
                         <button onclick="delScore('${student.studentid}','${course.courseName}')">Delete Score</button>
-                    </td>
+                    </td>   
                     
                     `
                         tableBody.appendChild(row);
@@ -504,7 +513,7 @@ function listCourses(courseList,tableBody,filter) {
 
                 document.querySelector("#failedStu").innerHTML=`Number of failed Students:${failedCount}`
                 document.querySelector("#passedStu").innerHTML=`Number of passed Students:${passedCount}`
-                document.querySelector("#meanOfCourse").innerHTML=`Mean of class: ${calcMeanOfCourse(course)}`
+                document.querySelector("#meanOfCourse").innerHTML=`Mean of class: ${calcMeanOfCourse(course).toPrecision(3)}`
             }
             else{
                 document.querySelector("ul").style="list-style: none;"
