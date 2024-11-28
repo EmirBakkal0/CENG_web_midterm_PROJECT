@@ -1,5 +1,9 @@
+if (window.location.hash === ""){
+    window.location.hash="courses"
+}
 function router(divID){
 
+    
     if (divID==="editCourse"){
         updateCombinedDropdowns()
         updateCombinedTable()
@@ -18,6 +22,8 @@ function router(divID){
     sections.forEach(item => item.classList.remove("visible"))
     const div =document.querySelector("#"+divID)
     div.classList.add("visible")
+    window.location.hash=divID
+
 
 }
 
@@ -175,9 +181,8 @@ function editStudent(index) {
 
         selectedStudent.editName(formName.value)
         alert("Student's name is updated to: "+formName.value)
-        window.location.reload();
-        router("students")
         updateStudentTable()
+        window.location.reload();
 
         dialog.close()
     })
@@ -633,6 +638,6 @@ document.querySelector("#searchCourseForm2").addEventListener("submit",(event) =
 
 
 
-
+router(window.location.hash.replace("#",""));  // this is 
 updateCourseTable()
 
